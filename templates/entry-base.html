@@ -1,0 +1,132 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+	<title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static "images/favicon.ico" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/fontawesome/css/font-awesome.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/reset.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/login.css" %}">
+</head>
+<body>
+    <div class="dialog" id="jsDialog">
+    <!--提示弹出框-->
+        <div class="successbox dialogbox" id="jsSuccessTips">
+            <h1 style="margin-bottom:0;">成功提交</h1>
+            <div class="close jsCloseDialog">
+                <img src="{% static "images/dig_close.png" %}"/>
+            </div>
+            <div class="cont">
+                <h2>您的需求提交成功！</h2>
+                <p></p>
+            </div>
+        </div>
+        <!--邮箱验证激活-->
+        <div  class="noactivebox dialogbox" id="jsUnactiveForm" >
+            <h1 style="margin-bottom:0;">邮件验证提示</h1>
+            <div class="close jsCloseDialog">
+                <img src="{% static "images/dig_close.png" %}"/>
+            </div>
+            <div class="center">
+                <img src="{% static "images/send.png" %}"/>
+                <p>我们已经向您的邮箱<span class="green" id="jsEmailToActive"></span>发送了邮件，<br/>为保证您的账号安全，请及时验证邮箱！</p>
+                <p class="a"><a class="btn" id="jsGoToEmail" target="_blank" href="">去邮箱验证</a></p>
+                <p class="zy_success upmove"></p>
+                <p style="display: none;" class="sendE2">若未收到，您可以查看垃圾邮件和被过滤邮件，也可以再次发送验证邮件（<span class="c5c">60s</span>）</p>
+                <p class="sendE">没收到，您可以查看您的垃圾邮件和被过滤邮件，<br/>也可以<span class="c5c green" id="jsSenEmailAgin" style="cursor: pointer;">再次发送验证邮件</span></p>
+            </div>
+        </div>
+        <!--重置密码-->
+        <div class="resetpassbox dialogbox" id="jsSetNewPwd">
+            <h1>重新设置密码</h1>
+            <div class="close jsCloseDialog">
+                <img src="{% static "images/dig_close.png" %}"/>
+            </div>
+            <p class="green">请输入新密码</p>
+            <form id="jsSetNewPwdForm">
+                <div class="box">
+                    <span class="word2">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</span>
+                    <input type="password" name="password" id="jsResetPwd" placeholder="请输入新密码"/>
+                </div>
+                <div class="box">
+                    <span class="word2">确&nbsp;认&nbsp;密&nbsp;码</span>
+                    <input type="password" name="password2" id="jsResetPwd2" placeholder="请再次输入新密码"/>
+                </div>
+                <div class="box">
+                    <span class="word2">验&nbsp;&nbsp;证&nbsp;&nbsp;码</span>
+                    <input type="text" name="code" id="jsResetCode" placeholder="请输入手机验证码"/>
+                </div>
+                <div class="error btns" id="jsSetNewPwdTips"></div>
+                <div class="button">
+                    <input type="hidden" name="mobile" id="jsInpResetMobil" />
+                    <input id="jsSetNewPwdBtn" type="button" value="提交" />
+                </div>
+                {% csrf_token %}
+            </form>
+        </div>
+        <!--忘记密码-->
+        <div class="forgetbox dialogbox">
+            <h1>忘记密码</h1>
+            <div class="close jsCloseDialog">
+                <img src="{% static "images/dig_close.png" %}"/>
+            </div>
+            <div class="cont">
+                <form id="jsFindPwdForm" autocomplete="off">
+                    <div class="box">
+                        <span class="word2" >账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</span>
+                        <input type="text" id="account" name="account" placeholder="手机/邮箱"/>
+                    </div>
+                    <div class="box">
+                        <span class="word3">验证码</span>
+                    </div>
+                    <div class="error btns" id="jsForgetTips"></div><!--忘记密码错误-->
+                    <div class="button">
+                        <input type="hidden" name="sms_type" value="1">
+                        <input id="jsFindPwdBtn" type="button" value="提交" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="bg" id="dialogBg"></div>
+
+    <section>
+        <div class="slide">
+            <div class="imgslide">
+                <ul class="imgs">
+                    <li><a href=""><img width="100%" height="100%" src="{% static "images/login-bg.jpg" %}" /></a></li>
+                    <li><a href=""><img width="100%" height="100%" src="{% static "images/login-bg.jpg" %}" /></a></li>
+                    <li><a href=""><img width="100%" height="100%" src="{% static "images/login-bg.jpg" %}" /></a></li>
+                </ul>
+            </div>
+            <!--<div class="unslider-arrow prev">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+            </div>
+            <div class="unslider-arrow next">
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
+            </div>-->
+        </div>
+        <div class="login-box clearfix">
+            <div class="fl hd-login">
+                <a class="index-logo" href="{% url "index" %}">
+                    <img src="{% static "images/loginlogo.png" %}" alt="工大在线">
+                </a>
+                <a class="login-hit" href="{% url "index" %}">
+                    <img src="{% static "images/login-hit.png" %}" alt="规格严格，功夫到家！">
+                </a>
+            </div>
+            <div class="fr form-box">
+                {% block form %}{% endblock %}
+            </div>
+        </div>
+    </section>
+    <script src="{% static "js/jquery.min.js" %}" type="text/javascript"></script>
+    <script src="{% static "js/unslider.js" %}" type="text/javascript"></script>
+    <script src="{% static "js/login.js" %}" type="text/javascript"></script>
+    <script src="{% static "js/validateDialog.js" %}" type="text/javascript"></script>
+</body>
+</html>

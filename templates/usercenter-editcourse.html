@@ -1,0 +1,473 @@
+{% extends "usercenter-base.html" %}{% load staticfiles %}
+
+{% block title %}我的课程- 工大在线{% endblock %}
+
+{% block bread_menu %}
+<section>
+    <div class="wp">
+        <ul class="crumbs">
+            <li><a href="{% url "index" %}">首页</a>></li>
+            <li><a href="{% url "user:user_info" %}">个人中心</a>></li>
+            <li><a href="{% url "user:user_course" %}">我的课程</a>></li>
+            <li>{{ course.name }}</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+
+{% block right_content %}
+
+    <div class="right">
+        <div class="personal_des Releasecont">
+            <div class="head"><h1>{{ course.name }}</h1></div>
+        </div>
+        <div class="personal_des permessage">
+            <div class="head">
+                <ul class="tab_header messagehead">
+                    <li class="active"><h2>课程简介</h2></li>
+                    <li><h2>章节信息</h2></li>
+                    <li><h2>课程资料</h2></li>
+                    <li><h2>课程公告</h2></li>
+                </ul>
+            </div>
+            <div class="companycenter">
+                <div id="course_info" class="tab_form course_info">
+                    <form id="jsEditCourseForm" autocomplete="off">
+                        <ul>
+                            <li>课程描述：
+                               <input type="text" name="desc" id="course_desc" value="{{ course.desc }}" placeholder="请输入课程描述">
+                                <i class="error-tips"></i>
+                            </li>
+                            <li>课程标签：
+                               <input type="text" name="tag" id="coure_tag" value="{{ course.tag }}" placeholder="请输入课程标签">
+                                <i class="error-tips"></i>
+                            </li>
+                            <li>课程难度：
+                               <select name="degree" id="course_degree">
+                                    <option value="ju" {% ifequal course.degree "ju" %}selected="selected"{% endifequal %} >初级</option>
+                                    <option value="mi" {% ifequal course.degree "mi" %}selected="selected"{% endifequal %} >中级</option>
+                                    <option value="hi" {% ifequal course.degree "hi" %}selected="selected"{% endifequal %} >高级</option>
+                                </select>
+                                <i class="error-tips"></i>
+                            </li>
+                            <li>课程须知：
+                               <input type="text" name="need_know" id="course_know" value="{{ course.need_know }}" placeholder="请输入课程须知">
+                                <i class="error-tips"></i>
+                            </li>
+                            <li>教师建议：
+                               <input type="text" name="teacher_tell" id="course_advice" value="{{ course.teacher_tell }}" placeholder="请输入教师建议">
+                                <i class="error-tips"></i>
+                            </li>
+                            <li class="button" style="margin-top:20px; width:400px;margin-left:0;">
+                               <input type="button" id="jsEditCourseBtn" value="提交">
+                            </li>
+                        </ul>
+                        {% csrf_token %}
+                    </form>
+                </div>
+                <div id="course_chapter" class="tab_form course_chapter hide">
+                    <ul>
+                        {% for chapter in course.get_course_chapter %}
+                            <li>
+                                <h3 style="display:inline-block;">章节<span style="color:#222;">{{ chapter.index }}</span>：{{ chapter.name }}</h3>
+                                <div class="pub-btn add-lesson" style="position:relative;top:0;right:0;font-size:12px;display:inline-block;">添加课时</div>
+                                <ul>
+                                    {% for lesson in chapter.get_chapter_lesson %}
+                                        <li>
+                                            <a data-video="{{ lesson.url }}" data-id="{{ lesson.id }}" class="J-media-item studyvideo">
+                                                课时<span style="color:#222;">{{ lesson.index }}</span>：{{ lesson.name }} ({{ lesson.time }})
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                <div class="pub-area" style="border:1px solid #cae1ff;padding:10px;border-radius:2px;">
+                                    <h3>添加新课时</h3>
+                                    <iframe id="frameFile" name="frameFile" style="display: none;"></iframe>
+                                    <form action="{% url "user:course_edit_lesson" chapter.id %}" method="post" class="jsEditLessonForm" autocomplete="off" enctype="multipart/form-data" target='frameFile'>
+                                        <span style="font-size:14px;color:#222;">课时序号：</span><input style="width:50px;height:28px;border-radius:2px;margin-bottom:15px;" type="number" id="lesson_index" name="index" placeholder="请输入课时序号">
+                                        <span style="font-size:14px;color:#222;margin-left:15px;">课时名称：</span><input style="width:300px;height:28px;border-radius:2px;" type="text" id="lesson_name" name="name" value="" placeholder="请输入课时名">
+                                        <br/>
+                                        <span style="font-size:14px;color:#222;">
+                                        课时链接：</span><input style="width:440px;height:28px;border-radius:2px;margin-bottom:15px;" type="text" id="lesson_url" name="url" value="" placeholder="请输入课时链接">
+                                        <br/>
+                                        <span style="font-size:14px;color:#222;">
+                                        视频文件：</span><input style="margin-bottom:15px;width:200px;height:24px;padding:3px;border-radius:2px;" type="file" name="video">
+                                        <input style="margin-left:15px;width:100px;height:32px;line-height:32px;color:#fff;border:0;border-radius:2px;background:#20b9ed;margin-bottom:15px;" type="submit" id="jsEditLessonBtn" value="提交">
+                                        {% csrf_token %}
+                                    </form>
+                                </div>
+                            </li>
+                    {% endfor %}
+                    </ul>
+                    <span class="pub-btn"><i class="fa fa-plus-circle"></i></span>
+                    <div class="pub-area">
+                        <h3>添加新章节</h3>
+                        <form id="jsEditChapterForm" autocomplete="off">
+                            <span style="font-size:14px;color:#222;">章节序号：</span><input style="width:50px;height:28px;border-radius:2px;" type="number" id="chapter_index" name="index" value="" placeholder="请输入章节序号">
+                            <span style="font-size:14px;color:#222;margin-left:15px;">章节名称：</span><input style="width:300px;height:28px;border-radius:2px;" type="text" id="chapter_name" name="name" value="" placeholder="请输入章节名">
+                            <input style="margin-left:15px;width:100px;height:30px;line-height:32px;color:#fff;border:0;border-radius:2px;background:#20b9ed;" type="button" id="jsEditChapterBtn" value="提交">
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+                <div id="course_resource" class="tab_form course_resource hide">
+                    <ul>
+                        {% for resource in all_resources %}
+                            <li>
+                                <div>文件{{ forloop.counter }}：{{ resource.name }}</div>
+                                <div style="font-size:12px;color:#666;">发布时间：{{ resource.add_time }}</div></li>
+                                <!--<a href="{{ MEDIA_URL }}{{ recourse.download }}" class="downcode" target="_blank" download="" data-id="274" title="">下载</a>-->
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <span class="pub-btn"><i class="fa fa-plus-circle"></i></span>
+                    <div class="pub-area">
+                        <h3>上传新资料</h3>
+                        <iframe id="frameFile" name="frameFile" style="display: none;"></iframe>
+                        <form id="upload_form" enctype="multipart/form-data" method="POST" action="{% url "user:course_edit_resource" course.id %}" target='frameFile'>
+                            <input type="file" name="resourcefile" multiple="multiple">
+                            <input type="submit" value="上传">
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+                <div id="course_note" class="tab_form course_note hide">
+                    <ul>
+                        {% for note in course.get_course_note %}
+                            <li><div>公告{{ forloop.counter }}：{{ note.note }}</div>
+                            <div style="font-size:12px;color:#666;">发布时间：{{ note.add_time }}</div></li>
+                        {% endfor %}
+                    </ul>
+                    <span class="pub-btn"><i class="fa fa-plus-circle"></i></span>
+                    <div class="pub-area">
+                        <h3>发布新公告</h3>
+                        <textarea name="note" cols="30" rows="10"></textarea>
+                        <button id="new-pub-btn">发布</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .companycenter .tab_form {
+            padding: 20px;
+        }
+        .companycenter .tab_form li {
+            float: none;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .companycenter .tab_form li input[type=text] {
+            color: #3d3d3d;
+            height: 30px;
+            line-height: 30px;
+            width: 300px;
+            background: #fafafa;
+            border-radius: 2px;
+        }
+
+        .companycenter .tab_form li input[type=button] {
+            color: #fff;
+            height: 30px;
+            line-height: 30px;
+            width: 300px;
+            background:  #0296e0;
+            border: 0;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .companycenter .tab_form li select {
+            color: #3d3d3d;
+            height: 32px;
+            line-height: 32px;
+            width: 302px;
+            background: #fafafa;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+        }
+
+        .tab_form.course_chapter li {
+            margin-bottom: 5px;
+        }
+
+        .course_chapter>ul>li>h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .course_chapter>ul>li>ul {
+            text-indent: 20px;
+        }
+
+        .course_resource input[type=file] {
+            width: 400px;
+            height: 24px;
+            padding: 5px;
+            border-radius: 2px;
+        }
+
+        .course_resource input[type=submit] {
+            width: 100px;
+            height: 36px;
+            margin-left: 20px;
+            line-height: 36px;
+            border: 0;
+            border-radius: 2px;
+            color: #fff;
+            font-size: 14px;
+            background: #0296e0;
+        }
+
+        .course_chapter,
+        .course_resource,
+        .course_note {
+            position: relative;
+        }
+
+        .course_chapter li:last-child,
+        .course_resource li:last-child,
+        .course_note li:last-child {
+            margin-bottom: 0;
+        }
+
+        .course_chapter .pub-btn,
+        .course_resource .pub-btn,
+        .course_note .pub-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #20b9ed;
+            text-align: right;
+            cursor: pointer;
+        }
+
+        .pub-area {
+            display: none;
+        }
+
+        .pub-area h3 {
+            margin-bottom: 10px;
+        }
+        .pub-area textarea {
+            width: 871px;
+            padding: 16px;
+            border-color: #cae1ff;
+        }
+
+        .pub-area button {
+            margin-left: 825px;
+            margin-top: 10px;
+            color: #fff;
+            height: 35px;
+            line-height: 35px;
+            width: 80px;
+            background:  #0296e0;
+            border: 0;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .videobox {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -300px!important;
+        margin-left: -600px!important;
+        width: 1200px;
+        padding: 0;
+        }
+        .videobox .close {
+            top: 5px;
+            right: 5px;
+            z-index: 9999;
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $('.tab_header > li').click(function(){
+        var _self = $(this),
+            index = _self.index();
+        _self.addClass('active').siblings().removeClass('active');
+        $('.tab_form').eq(index).removeClass('hide').siblings('.tab_form').addClass('hide');
+    });
+
+    $(document).ready(function(){
+        /*hash = location.hash;
+        $('.tab_header > li').each(function(){
+            if($(this).find("a").attr("href")==hash){$(this).addClass('active');}
+            else{$(this).removeClass('active');}
+        });
+
+        $('.tab_form').each(function(){
+            if($(this).attr("id")==hash.substring(1)){$(this).removeClass('hide');}
+            else{$(this).addClass('hide');}
+        });*/
+
+        var chapter_num = $(".course_chapter #chapter_index");
+
+        if(chapter_num){
+            var number = $(".course_chapter>ul>li:last-child>h3>span").text();
+            number = parseInt(number)+1;
+            chapter_num.attr("value", number);
+        }
+
+    });
+
+
+
+    $('#jsEditCourseBtn').on('click', function() {
+        var _self = $(this),
+            $jsEditCourseForm = $('#jsEditCourseForm')
+        $.ajax({
+            cache: false,
+            type: 'post',
+            dataType: 'json',
+            url: "{% url "user:course_edit_info" course.id %}",
+            data: $jsEditCourseForm.serialize(),
+            async: true,
+            beforeSend: function(XMLHttpRequest) {
+                _self.val("保存中...");
+                _self.attr('disabled', true);
+            },
+            success: function(data) {
+                if (data.desc) {
+                    _showValidateError($('#course_desc'), data.desc);
+                } else if (data.tag) {
+                    _showValidateError($('#coure_tag'), data.tag);
+                } else if (data.degree) {
+                    _showValidateError($('#course_degree'), data.degree);
+                } else if (data.need_know) {
+                    _showValidateError($('#course_know'), data.need_know);
+                    } else if (data.teacher_tell) {
+                    _showValidateError($('#course_advice'), data.teacher_tell);
+                } else if (data.status == "fail") {
+                    Dml.fun.showTipsDialog({
+                        title: '保存失败',
+                        h2: data.msg
+                    });
+                } else if (data.status == "success") {
+                    Dml.fun.showTipsDialog({
+                        title: '保存成功',
+                        h2: '课程信息修改成功！'
+                    });
+                    Dml.fun.winReload();
+                }
+            },
+            complete: function(XMLHttpRequest) {
+                _self.val("保存");
+                _self.removeAttr("disabled");
+            }
+        });
+    });
+
+    $('#jsEditChapterBtn').on('click', function() {
+        var _self = $(this),
+            $jsEditChapterForm = $('#jsEditChapterForm')
+        $.ajax({
+            cache: false,
+            type: 'post',
+            dataType: 'json',
+            url: "{% url "user:course_edit_chapter" course.id %}",
+            data: $jsEditChapterForm.serialize(),
+            async: true,
+            success: function(data) {
+                if (data.index) {
+                    alert(data.index);
+                } else if (data.name) {
+                    alert(data.name);
+                } else if (data.status == "success") {
+                    alert("添加成功");
+                    Dml.fun.winReload();
+                }
+            },
+        });
+    });
+
+    $(".pub-btn").unbind("click").click(function(){
+        $(this).find("i").css("transform", "rotate(45deg)");
+        $(this).siblings('.pub-area').toggle(300);
+    });
+
+    $(".pub-btn.add-lesson").on("click", function(){
+        var lesson_num = $(this).siblings(".pub-area").find("#lesson_index"),
+            old_number = $(this).siblings("ul").find("li:last-child span").text();
+
+        if(old_number){
+            var number = parseInt(old_number)+1;
+            lesson_num.attr("value", number);
+        }else{
+            lesson_num.attr("value", "1");
+        }
+    });
+
+    $("#new-pub-btn").on("click", function(){
+        var content = $(this).siblings("textarea").val();
+        if(content == ""){
+            alert("公告内容不能为空");
+            return;
+        }
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "{% url "user:course_edit_note" %}",
+            data: {"course_id":{{ course.id }}, "content":content},
+            async: true,
+            beforeSend:function(xhr, settings){
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            success: function(data) {
+                if(data.status == "fail"){
+                    alert(data.msg);
+                }else if(data.status == "success"){
+                    Dml.fun.winReload();
+                }
+            },
+        });
+    });
+
+    $("#upload_form").submit(function(){
+        Dml.fun.showTipsDialog({
+            title: '提示',
+            h2: '资料添加成功！',
+        });
+        Dml.fun.winReload();
+    });
+
+    $(".jsEditLessonForm").submit(function(){
+        Dml.fun.showTipsDialog({
+            title: '提示',
+            h2: '课时添加成功！',
+        });
+        Dml.fun.winReload();
+    });
+
+</script>
+
+<script src="{% static "js/video.min.js" %}"></script>
+<script>
+var myPlayer = videojs("course_video");
+$(".J-media-item").click(function() {
+    Dml.fun.showDialog("#jsVideoDialog");
+    var videoUrl = $(this).attr("data-video"),
+        videoId = $(this).attr("data-id");
+    $("#jsVideoDialog source").attr("src", videoUrl);
+    $("#jsVideoDialog source").attr("data-id", videoId);
+    myPlayer.ready(function() {
+        myPlayer.src(videoUrl);
+        myPlayer.load(videoUrl);
+        myPlayer.play();
+    });
+});
+
+$('#jsVideoDialog .jsCloseDialog').on('click', function() {
+    myPlayer.pause();
+
+});
+</script>
+
+{% endblock %}

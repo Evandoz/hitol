@@ -1,0 +1,44 @@
+{% extends "usercenter-base.html" %}
+{% load staticfiles %}
+
+{% block title %}我的数据- 工大在线{% endblock %}
+
+{% block bread_menu %}
+<section>
+    <div class="wp">
+        <ul class="crumbs">
+            <li><a href="{% url "index" %}">首页</a>></li>
+            <li><a href="{% url "user:user_info" %}">个人中心</a>></li>
+            <li><a href="{% url "user:user_data" %}">我的数据</a>></li>
+            <li>{{ course.name }}</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+
+{% block right_content %}
+    <div class="right" >
+            <div class="personal_des Releasecont">
+                <div class="head">
+                    <h1>{{ course.name }}</h1>
+                </div>
+            </div>
+            <div class="personal_des permessage">
+                <div class="head">
+                    <ul class="tab_header messagehead" style="text-align:left;">
+                        <li style="float: none;height:50px;margin-left:0;padding-right:100px;">学号</li>
+                        <li style="float: none;height:50px;padding-right:200px;">姓名</li>
+                        <li style="float: none;height:50px;padding-right:250px;">院系</li>
+                        <li style="float: none;height:50px;padding-right:50px;">参与度</li>
+                    </ul>
+                </div>
+                <div class="commentcounts">
+                    {% for join_num in join_nums %}
+                        <div class="comment">
+                            <ul class="tab_header messagehead"><li style="width:130px;text-align:left;">{{ join_num.sid }}</li><li style="width:230px;text-align:left;">{{ join_num.name }}</li><li style="width:280px;text-align:left;">{{ join_num.school }}</li><li>{{ join_num.nums }}</li></li></ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+{% endblock %}

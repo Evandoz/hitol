@@ -1,0 +1,32 @@
+{% extends "entry-base.html" %}
+
+{% block title %}用户注册{% endblock %}
+
+{% block form %}
+    <div class="tab">
+        <h2>邮箱注册</h2>
+    </div>
+    <div class="tab-form">
+        <form id="jsEmailRegForm" autocomplete="off"><!-- method="post" action="{% url "register" %}"  -->
+            <div class="form-group marb20"><!--  {% if register_form.errors.email %}errorput{% endif %} -->
+                <label>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱</label>
+                <input  type="text" id="id_email" name="email" value="{% if register_form.email.value %}{{ register_form.email.value }}{% endif %}" placeholder="请输入您的邮箱" />
+            </div>
+            <div class="form-group marb20"><!--  {% if register_form.errors.password %}errorput{% endif %} -->
+                <label>密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</label>
+                <input type="password" id="id_password" name="password"  value="{% if register_form.password.value %}{{ register_form.password.value }}{% endif %}" placeholder="请输入8-20位非中文字符密码" />
+            </div>
+            <div class="form-group marb20 captcha1">
+                <!--  {% if register_form.errors.captcha %}errorput{% endif %} -->
+                <label>验&nbsp;证&nbsp;码</label>
+                {{ register_form.captcha }}
+            </div>
+            <div class="error btns" id="jsEmailTips"></div>
+            <!--{% for key, error in register_form.errors.items %}{{ error }}{% endfor %}{{ msg }}-->
+            <!-- <div class="auto-box marb8"></div> -->
+            <input class="btn btn-green" id="jsEmailRegBtn" type="button" value="注册并登录" />
+            {% csrf_token %}
+        </form>
+    </div>
+    <p class="form-p">已有账号？<a href="{% url "login" %}">立即登录</a></p>
+{% endblock %}

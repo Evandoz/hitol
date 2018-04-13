@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}课程列表 - 工大在线{% endblock %}
+
+{% block bread_menu %}
+<section>
+    <div class="wp">
+        <ul  class="crumbs">
+            <li><a href="{% url "index" %}">首页</a>></li>
+            <li>在线课程</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section>
+	<div class="wp">
+		<div class="list" style="margin-top:0;">
+			<div class="left">
+                <div class="listoptions">
+                    <ul>
+                        <li>
+                            <h2>课程类别</h2>
+                            <div class="cont">
+                                <a href="?sc={{ school_id }}"><span class="{% ifequal category ""  %}active2{% endifequal %}">全部</span></a>
+                                <a href="?ct=co&sc={{ school_id }}"><span class="{% ifequal category "co"  %}active2{% endifequal %}">公选课</span></a>
+                                <a href="?ct=li&sc={{ school_id }}"><span class="{% ifequal category "li"  %}active2{% endifequal %}">限选课</span></a>
+                            </div>
+                        </li>
+                        <li>
+                            <h2>所属院系</h2>
+                            <div class="more">更多</div>
+                            <div class="cont closed">
+                                <a href="?ct={{ category }}"><span class="{% ifequal school_id ""  %}active2{% endifequal %} ">全部</span></a>
+                                {% for school in all_schools %}
+                                    <a href="?sc={{ school.id }}&ct={{ category }}">
+                                    <span class="{% ifequal school_id school.id|stringformat:"i"  %}active2{% endifequal %}">{{ school.name }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="layout">
+    				<div class="head">
+    					<ul class="tab_header">
+    						<li class="{% if sort == "" %}active{% endif %}">
+                                <a href="?sort=">全部</a>
+                            </li>
+                            <li class="{% if sort == "new" %}active{% endif %}">
+                                <a href="?sort=new">最新 &#8595;</a>
+                            </li>
+    						<li class="{% if sort == "hot" %}active{% endif %}">
+                                <a href="?sort=hot">最热门 &#8595;</a>
+                            </li>
+    						<li class="{% if sort == "students" %}active{% endif %}">
+                                <a href="?sort=students">参与人数 &#8595;</a>
+                            </li>
+    					</ul>
+    				</div>
+                    <div id="inWindow">
+                        <div class="tab_cont " id="content">
+        					<div class="group_list">
+                                {% for course in all_courses.object_list %}
+                                    <div class="box">
+                                        <a href="{% url "course:course_detail" course.id %}">
+                                            <img width="270" height="180" class="scrollLoading" src="{{ MEDIA_URL }}{{ course.image }}"/>
+                                        </a>
+                                        <div class="des">
+                                            <a href="{% url "course:course_detail" course.id %}">
+                                                <h2>{{ course.name }}</h2>
+                                            </a>
+                                            <span class="fl">时长：<i class="key">{{ course.learn_times }}</i></span>
+                                            <span class="fr">学习人数：{{ course.learn_nums }}&nbsp;&nbsp;</span>
+                                        </div>
+                                        <div class="bottom">
+                                            <a href="{% url "course:course_detail" course.id %}">
+                                                <span class="fl">来自{{ course.school.name }}</span>
+                                            </a>
+                                            <span class="star fr notlogin" data-favid="15">{{ course.fav_nums }}</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+        					</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pageturn">
+                    <ul class="pagelist">
+                        {% if all_courses.has_previous %}
+                            <li class="long"><a href="?{{ all_courses.previous_page_number.querystring }}" class="prev">上一页</a></li>
+                        {% endif %}
+
+                        {% for page in all_courses.pages %}
+                             {% if page %}
+                                {% ifequal page all_courses.number %}
+                                    <li class="active"><a href="?{{ page.querystring }}">{{ page }}</a></li>
+                                {% else %}
+                                    <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                                {% endifequal %}
+                            {% else %}
+                                <li class="none"><a href="">...</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if all_courses.has_next %}
+                            <li class="long"><a href="?{{ all_courses.next_page_number.querystring }}" class="next">下一页</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+			</div>
+			<div class="right layout">
+				<div class="head">热门课程推荐</div>
+				<div class="group_recommend">
+                    {% for hot_course in hot_courses %}
+                        <dl>
+                        <dt>
+                            <a target="_blank" href="{% url "course:course_detail" hot_course.id %}">
+                                <img width="240" height="160" class="scrollLoading" src="{{ MEDIA_URL }}{{ hot_course.image }}"/>
+                            </a>
+                        </dt>
+                        <dd style="padding:10px; background: #f8f8f8;">
+                            <h2 class="fl">{{ hot_course.name }}</h2>
+                            <h2 class="fr">学习人数：{{ hot_course.learn_nums }}</h2>
+                            <p class="desc clear" style="padding: 8px 0;font-size:14px;color: #555;">{{ hot_course.school }}</p>
+                        </dd>
+                    </dl>
+                    {% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock %}

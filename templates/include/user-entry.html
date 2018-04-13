@@ -1,0 +1,48 @@
+{% if request.user.is_authenticated %}
+    <div class="personal fr">
+        <div class="user">
+            {% if request.user.is_superuser %}
+                <a class="username fl" href="/admin/">
+                    {{ request.user.username|slice:"12" }}
+                </a>
+            {% elif request.user.is_teacher %}
+                <a class="username fl" href="{% url "user:user_info" %}">
+                    欢迎，{% if request.user.teacher.name %}{{ request.user.teacher.name|slice:"1" }}{% else %}{{ request.user.username|slice:"12" }}{% endif %}老师
+                </a>
+                <img class="fr" width="24" height="24" src="{{ MEDIA_URL }}{{ request.user.teacher.image }}"/>
+            {% elif request.user.is_student %}
+                <a class="username fl" href="{% url "user:user_info" %}">
+                    {% if request.user.student.nickname %}{{ request.user.student.nickname }}{% else %}{{ request.user.username|slice:"12" }}{% endif %}
+                </a>
+                <img class="fr" width="24" height="24" src="{{ MEDIA_URL }}{{ request.user.student.image }}"/>
+            {% endif %}
+
+        </div>
+
+        <div class="userdetail">
+            <ul>
+                {% if request.user.is_superuser %}
+                    <li><span class="role">管理员登录</span></li>
+                    <li><a class="personcenter" href="/admin/">后台管理</a></li>
+                {% else %}
+                    {% if request.user.is_teacher %}
+                        <li><span class="role">教师用户登录</span></li>
+                    {% elif request.user.is_student %}
+                        <li><span class="role">学生用户登录</span></li>
+                    {% endif %}
+                    <li><a class="personcenter" href="{% url "user:user_info" %}">个人中心</a></li>
+                {% endif %}
+                    <li><a class="" href="{% url "logout" %}">退出</a></li>
+            </ul>
+        </div>
+    </div>
+{% else %}
+    <div class="entry fr">
+        <a class="entrybtn loginbtn" href="{% url "login" %}">登录</a>
+        <a class="entrybtn registerbtn" href="{% url "register" %}">注册</a>
+    </div>
+{% endif %}
+<a class="message fr" href="{% url "user:user_message" %}">
+    <i class="fa fa-bell" aria-hidden="true"></i>
+    <span id="MsgNum">{{ request.user.get_unread_message }}</span>
+</a>

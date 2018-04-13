@@ -1,0 +1,33 @@
+<section>
+    <div class="wp">
+        <div class="groupPurchase_detail detail">
+            <div class="toppro">
+                <div class="left">
+                    <div class="picbox">
+                        <div class="tb-booth tb-pic">
+                            <img width="100%" height="100%" src="{{ MEDIA_URL }}{{ course.image }}" class="jqzoom" />
+                        </div>
+                    </div>
+                </div>
+                <div class="right">
+                    <div class="des">
+                        <h1 title="{{ course.name }}">{{ course.name }}</h1>
+                        <a href="{% url "school:school_home" course.school.id %}">
+                            <h2 class="center" title="{{ course.school.name }}">{{ course.school.name }}</h2>
+                        </a>
+                        <ul class="parameter">
+                            <li><span class="pram">学习人数：{{ course.learn_nums }}</span></li>
+                            <li><span class="pram">时长：{{ course.learn_times }}</span></li>
+                            <li><span class="pram">章节数：{{ course.get_chapter_nums }}</span></li>
+                            <li><span class="pram">课程类别：{{ course.get_category_display }}</span></li>
+                        </ul>
+                        <div class="prize">
+                            <span>难度：</span><span class="key">{{ course.get_degree_display }}</span>
+                        </div>
+                        <p class="desc">{{ course.desc }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

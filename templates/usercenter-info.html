@@ -1,0 +1,148 @@
+{% extends "usercenter-base.html" %}{% load staticfiles %}
+
+{% block title %}我的资料- 工大在线{% endblock %}
+
+{% block bread_menu %}
+<section>
+    <div class="wp">
+        <ul class="crumbs">
+            <li><a href="{% url "index" %}">首页</a>></li>
+            <li><a href="{% url "user:user_info" %}">个人中心</a>></li>
+            <li>我的资料</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+
+{% block right_content %}
+    <div class="right">
+        <div class="personal_des ">
+            <div class="head" style="border:1px solid #cae1ff;">
+                <h1>我的资料</h1>
+            </div>
+            {% if request.user.is_student %}
+            <div class="inforcon">
+                <div class="left" style="width:242px;">
+                    <iframe id="frameFile" name="frameFile" style="display: none;"></iframe>
+                    <form class="clearfix" id="jsAvatarForm" enctype="multipart/form-data" autocomplete="off" method="post" action="{% url "user:user_image" %}" target='frameFile'>
+                        <label class="changearea" for="avatarUp">
+                            <span id="avatardiv" class="pic">
+                                <img width="100" height="100" class="js-img-show" id="avatarShow" src="{{ MEDIA_URL }}{{ request.user.student.image }}"/>
+                            </span>
+                            <span class="fl upload-inp-box" style="margin-left:70px;">
+                                <span class="button btn-green btn-w100" id="jsAvatarBtn">修改头像</span>
+                                <input type="file" name="image" id="avatarUp" class="js-img-up"/>
+                            </span>
+                        </label>
+                        {% csrf_token %}
+                    </form>
+                    <div style="border-top:1px solid #cae1ff;margin-top:40px;">
+                        <a class="button btn-green btn-w100" id="jsUserResetPwd" style="margin:80px auto;width:100px;">修改密码</a>
+                    </div>
+                </div>
+                <form class="perinform" id="jsEditUserSForm" autocomplete="off">
+                    <ul class="right">
+                        <li>学&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号：
+                           <input type="text" name="sid" id="stu_id" value="{{ request.user.student.sid }}" placeholder="请输入您的学号" maxlength="9">
+                            <i class="error-tips"></i>
+                        </li>
+                        <li>昵&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称：
+                           <input type="text" name="nickname" id="nick_name" value="{{ request.user.student.nickname }}" placeholder="请输入您的昵称" maxlength="50">
+                            <i class="error-tips"></i>
+                        </li>
+                        <li>性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别：
+                            <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="gender" value="male" {% if request.user.student.gender == 'male' %}checked="checked"{% endif %}>男</label>
+                            <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="gender" value="female" {% if request.user.student.gender == 'female' %}checked="checked"{% endif %}>女</label>
+                        </li>
+                        <li>院&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系：
+                            <select name="school" id="school">
+                                {% for schools in all_schools %}
+                                    <option value="{{ schools.id }}" {% ifequal schools.id request.user.student.school.id %}selected="selected"{% endifequal %} >{{ schools.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="error-tips"></i>
+                        </li>
+                        <li>手&nbsp;&nbsp;机&nbsp;&nbsp;号：
+                            <input type="text" name="mobile" id="mobile" placeholder="请输入您的手机号码" value="{{ request.user.mobile|default_if_none:'' }}" maxlength="11">
+                        </li>
+                        <li>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：
+                            <input class="borderno" type="text" name="email" readonly="readonly" value="{{ request.user.email }}"/>
+                            <span class="green changeemai_btn">[修改]</span>
+                        </li>
+                        <li class="button heibtn">
+                            <input type="button" id="jsEditUserSBtn" value="保存">
+                        </li>
+                    </ul>
+                    {% csrf_token %}
+                </form>
+            </div>
+            {% elif request.user.is_teacher %}
+            <div class="inforcon">
+                <div class="left" style="width:242px;">
+                    <iframe id="frameFile" name="frameFile" style="display: none;"></iframe>
+                    <form class="clearfix" id="jsAvatarForm" enctype="multipart/form-data" autocomplete="off" method="post" action="{% url "user:user_image" %}" target='frameFile'>
+                        <label class="changearea" for="avatarUp">
+                            <span id="avatardiv" class="pic">
+                                <img width="100" height="100" class="js-img-show" id="avatarShow" src="{{ MEDIA_URL }}{{ request.user.teacher.image }}"/>
+                            </span>
+                            <span class="fl upload-inp-box" style="margin-left:70px;">
+                                <span class="button btn-green btn-w100" id="jsAvatarBtn">修改头像</span>
+                                <input type="file" name="image" id="avatarUp" class="js-img-up"/>
+                            </span>
+                        </label>
+                        {% csrf_token %}
+                    </form>
+                    <div style="border-top:1px solid #cae1ff;margin-top:40px;">
+                        <a class="button btn-green btn-w100" id="jsUserResetPwd" style="margin:80px auto;width:100px;">修改密码</a>
+                    </div>
+                </div>
+                <form class="perinform" id="jsEditUserTForm" autocomplete="off">
+                    <ul class="right">
+                        <li>教&nbsp;&nbsp;师&nbsp;&nbsp;号：
+                            <input type="text" name="tid" id="tea_id" value="{{ request.user.teacher.tid }}" placeholder="请输入您的教师号" maxlength="50">
+                            <i class="error-tips"></i>
+                        </li>
+                        <li>姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：
+                           <input type="text" name="name" id="nick_name" value="{{ request.user.teacher.name }}" placeholder="请输入您的姓名" maxlength="50">
+                            <i class="error-tips"></i>
+                        </li>
+                        <li>性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别：
+                            <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="gender" value="male" {% if request.user.teacher.gender == 'male' %}checked="checked"{% endif %}>男</label>
+                            <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="gender" value="female" {% if request.user.teacher.gender == 'female' %}checked="checked"{% endif %}>女</label>
+                        </li>
+                        <li>院&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系：
+                            <select name="school" id="school">
+                                {% for schools in all_schools %}
+                                    <option value="{{ schools.id }}" {% ifequal schools.id request.user.teacher.school.id %}selected="selected"{% endifequal %} >{{ schools.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="error-tips"></i>
+                        </li>
+                        <li>职&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称：
+                            <input type="text" name="title" id="tea_title" placeholder="请输入您的职称" value="{{ request.user.teacher.title }}" maxlength="20">
+                            <i class="error-tips"></i>
+                        </li>
+                        <li>工作时间：
+                           <input type="text" id="start_work" name="start" value="{{ request.user.teacher.start }}" placeholder="请输入您的工作时间" readonly="readonly"/>
+                           <i class="error-tips"></i>
+                        </li>
+                        <li>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：
+                            <input class="borderno" type="text" name="email" readonly="readonly" value="{{ request.user.email }}"/>
+                            <span class="green changeemai_btn">[修改]</span>
+                        </li>
+                        <li class="button heibtn">
+                            <input type="button" id="jsEditUserTBtn" value="保存">
+                        </li>
+                    </ul>
+                    {% csrf_token %}
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static "js/plugins/laydate/laydate.js" %}"></script>
+<script type="text/javascript" src="{% static "js/deco-user.js" %}"></script>
+{% endblock %}

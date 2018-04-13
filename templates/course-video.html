@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}课程视频 - 工大在线{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/muke/base.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/muke/course/learn-less.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/mooc.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/muke/course/common-less.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/video-js.min.css" %}" />
+{% endblock %}
+
+{% block bread_menu %}
+<section>
+    <div class="wp">
+        <div class="crumbs">
+            <ul>
+                <li><a href="{% url "index" %}">首页</a>></li>
+                <li><a href="{% url "course:course_list" %}">在线课程</a>></li>
+                <li><a href="{% url "course:course_detail" course.id %}">课程详情</a>></li>
+                <li>章节信息</li>
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<div id="main">
+
+    {% include "include/course-info.html" %}
+
+    <div class="course-info-main clearfix w has-progress">
+        <div class="info-bar clearfix">
+            <div class="content-wrap clearfix">
+                <div class="content">
+                    <div class="mod-tab-menu">
+                        <ul class="course-menu clearfix">
+                            <li>
+                                <a id="learnOn" class="ui-tabs-active active" href="{% url "course:course_info" course.id %}"><span>目录</span></a>
+                            </li>
+                            <li>
+                                <a id="commentOn" class="" href="{% url "course:course_comment" course.id %}"><span>讨论区</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="notice" class="clearfix">
+                        <div class="l">
+                            <strong>最新公告:</strong>
+                            <a href="javascript:void(0)">
+                            {% for course_note in course.get_new_note %}{{ course_note.note }}{% endfor %}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mod-chapters">
+                        {% for chapter in course.get_course_chapter %}
+                            <div class="chapter chapter-active">
+                                <h3>
+                                    <strong><i class="state-expand"></i>{{ chapter.index }}.{{ chapter.name }}</strong>
+                                </h3>
+                                <ul class="video">
+                                    {% for lesson in chapter.get_chapter_lesson %}
+                                        <li>
+                                            <!-- href="{% url "course:course_video" lesson.id %}" -->
+                                            <a data-video="{{ lesson.url }}" data-id="{{ lesson.id }}" class="J-media-item studyvideo">
+                                                {{ chapter.index }}.{{ lesson.index }}{{ lesson.name }} ({{ lesson.time }})
+                                                <i class="study-state"></i>
+                                                {% if request.user.is_student %}
+                                                    {% for user_t in user_time %}
+                                                        {% ifequal lesson user_t.lesson %}
+                                                            <span class="u_time r" data-time="{{ user_t.time }}"></span>
+                                                        {% endifequal %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% include "include/course-teacher.html" %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="dialog" id="jsDialog">
+    <div class="videobox dialogbox" id="jsVideoDialog">
+        <div class="close jsCloseDialog"><img src="{% static "images/dig_close.png" %}"/></div>
+        <div class="video-player">
+            <video id="course_video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" width="1200" height="600" poster="" data-setup="{}">
+                <source data-id="" src="" type="video/mp4">
+            </video>
+        </div>
+    </div>
+</div>
+<div class="bg" id="dialogBg"></div>
+
+<style>
+    .videobox {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -300px!important;
+        margin-left: -600px!important;
+        width: 1200px;
+        padding: 0;
+    }
+    .videobox .close {
+        top: 5px;
+        right: 5px;
+        z-index: 9999;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/video.min.js" %}"></script>
+<script>
+var myPlayer = videojs("course_video");
+$(".J-media-item").click(function() {
+    Dml.fun.showDialog("#jsVideoDialog");
+    var videoUrl = $(this).attr("data-video"),
+        videoId = $(this).attr("data-id");
+        time = $(this).find(".u_time").attr("data-time");
+    $("#jsVideoDialog source").attr("src", videoUrl);
+    $("#jsVideoDialog source").attr("data-id", videoId);
+    myPlayer.ready(function() {
+        myPlayer.src(videoUrl);
+        myPlayer.load(videoUrl);
+        if(time){
+            myPlayer.currentTime(parseFloat(time));
+        }
+        myPlayer.play();
+    });
+});
+
+$(window).bind('beforeunload',function(){
+
+    myPlayer.pause();
+    {% if request.user.is_student %}
+    time = myPlayer.currentTime();
+    var lesson_id = $(this).siblings(".video-player").find("source").attr("data-id");
+    $.ajax({
+        cache: false,
+        type: 'post',
+        dataType: 'json',
+        url: "{% url "course:video_time" %}",
+        data: {'course_id':{{ course.id }}, 'lesson_id':lesson_id, 'time':time},
+        async: true,
+        beforeSend:function(xhr, settings){
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        },
+        success: function(data) {
+            Dml.fun.winReload();
+        },
+    });
+    {% endif %}
+});
+
+// 模态窗消失时，关闭视频
+$('.jsCloseDialog').on('click', function() {
+    myPlayer.pause();
+    {% if request.user.is_student %}
+    time = myPlayer.currentTime();
+    var lesson_id = $(this).siblings(".video-player").find("source").attr("data-id");
+    $.ajax({
+        cache: false,
+        type: 'post',
+        dataType: 'json',
+        url: "{% url "course:video_time" %}",
+        data: {'course_id':{{ course.id }}, 'lesson_id':lesson_id, 'time':time},
+        async: true,
+        beforeSend:function(xhr, settings){
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        },
+        success: function(data) {
+            Dml.fun.winReload();
+        },
+    });
+    {% endif %}
+});
+
+function checkTime(i){
+    if (i<10)
+        i="0" + i
+    return i
+}
+
+$(document).ready(function(){
+    $(".u_time").each(function(){
+        var t = $(this).attr("data-time");
+        t = parseFloat(t);
+        var m = Math.floor(t/60);
+        var s = Math.floor(t%60);
+        s = checkTime(s);
+        $(this).text(m+":"+s);
+    });
+})
+
+</script>
+{% endblock %}

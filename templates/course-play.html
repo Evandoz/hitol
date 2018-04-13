@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}{{ video.name }} - 工大在线{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/muke/base.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/muke/course/learn-less.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/mooc.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/muke/course/common-less.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/video-js.min.css" %}" />
+{% endblock %}
+
+{% block bread_menu %}
+<section>
+    <div class="wp">
+        <div class="crumbs">
+            <ul>
+                <li><a href="{% url "index" %}">首页</a>></li>
+                <li><a href="{% url "course:course_list" %}">在线课程</a>></li>
+                <li><a href="{% url "course:course_detail" course.id %}">{{ course.name }}</a>></li>
+                <li>{{ lesson.name }}</li>
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<div id="main">
+
+	<div class="video-player">
+		<video id="course_video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" width="1200" height="600" poster="" data-setup="{}">
+			<source src="{{ lesson.url }}" type='video/mp4'>
+		</video>
+	</div>
+
+    <div class="course-info-main clearfix w has-progress">
+        <div class="info-bar clearfix">
+            <div class="content-wrap clearfix">
+                <div class="content">
+                    <div class="mod-tab-menu">
+                        <ul class="course-menu clearfix">
+                            <li>
+                                <a id="learnOn" class="ui-tabs-active active" href="{% url "course:course_info" course.id %}"><span>章节</span></a>
+                            </li>
+                            <li>
+                                <a id="commentOn" class="" href="{% url "course:course_comment" course.id %}"><span>评论</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="notice" class="clearfix">
+                        <div class="l">
+                            <strong>最新公告:</strong>
+                            <a href="javascript:void(0)">
+                            {% for course_note in course.get_new_note %}{{ course_note.note }}{% endfor %}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mod-chapters">
+                        {% for chapter in course.get_course_chapter %}
+                            <div class="chapter chapter-active">
+                                <h3>
+                                    <strong><i class="state-expand"></i>{{ chapter.name }}</strong>
+                                </h3>
+                                <ul class="video">
+                                    {% for lesson in chapter.get_chapter_lesson %}
+                                        <li>
+                                            <a target="_blank" href="{% url "course:course_video" lesson.id %}" class="J-media-item studyvideo">
+                                                {{ lesson.name }} ({{ lesson.time }})
+                                                <i class="study-state"></i>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% include "include/course-teacher.html" %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static "js/video.min.js" %}"></script>
+
+<script text="text/javascript">
+var myplayer = videojs("course_video");
+myplayer.on("pause", function(){
+    alert(this.currentTime());
+})
+</script>
+
+{% endblock %}

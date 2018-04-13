@@ -1,0 +1,295 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+	<title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static "images/favicon.ico" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/fontawesome/css/font-awesome.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/reset.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/animate.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "js/plugins/queryCity/css/cityLayout.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/lq.datetimepick.css" %}"/>
+    {% block extra_css %}{% endblock %}
+    <script type="text/javascript" src="{% static "js/jquery.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-migrate.min.js" %}"></script>
+</head>
+<body>
+<section class="headerwrap headerwrap2">
+    <header>
+		<div  class="header2 header">
+
+            <div class="middle">
+                <div class="wp">
+                    <a class="logo fl" href="{% url "index" %}">
+                        <img src="{% static "images/logo.png" %}"  width="100%" height="100%" />
+                    </a>
+                    <div class="userheader fl">
+                        <h1>个人中心</h1>
+                    </div>
+                     {% include "include/user-entry.html" %}
+                </div>
+            </div>
+		</div>
+    </header>
+</section>
+
+{% block bread_menu %}{% endblock %}
+
+<section>
+	<div class="wp list personal_list">
+    	<div class="left">
+            <ul>
+                <li class="{% ifequal  current_page 'info' %}active2{% endifequal %}">
+                    <a href="{% url "user:user_info" %}">我的资料</a>
+                </li>
+                <li class="{% ifequal  current_page 'course' %}active2{% endifequal %}">
+                    <a href="{% url "user:user_course" %}">我的课程</a>
+                </li>
+                {% if request.user.is_teacher %}
+                    <li class="{% ifequal  current_page 'data' %}active2{% endifequal %}">
+                        <a href="{% url "user:user_data" %}">我的数据</a>
+                    </li>
+                {% elif request.user.is_student %}
+                    <li class="{% ifequal  current_page 'fav' %}active2{% endifequal %}">
+                        <a href="{% url "user:user_fav_teacher" %}">我的收藏</a>
+                    </li>
+                {% endif %}
+                <li class="{% ifequal  current_page 'message' %}active2{% endifequal %}">
+                    <a href="{% url "user:user_message" %}">我的消息</a>
+                </li>
+            </ul>
+    	</div>
+
+        {% block right_content %}{% endblock %}
+	</div>
+</section>
+
+<section>
+    <ul class="sidebar">
+        <li class="totop"></li>
+    </ul>
+</section>
+
+<div class="dialog" id="jsDialog">
+    <!--成功提示框-->
+    <div class="successbox dialogbox" id="jsSuccessTips">
+        <h1>成功提交</h1>
+        <div class="close jsCloseDialog"><img src="{% static "images/dig_close.png" %}"/></div>
+        <div class="cont">
+            <h2>您的需求提交成功！</h2>
+            <p></p>
+        </div>
+    </div>
+    <!--确认提示框-->
+    <div class="bidtips dialogbox promptbox" id="jsComfirmDialig">
+        <h1>确认提交</h1>
+        <div class="close jsCloseDialog"><img src="{% static "images/dig_close.png" %}"/></div>
+        <div class="cont">
+            <h2>您确认提交吗？</h2>
+            <dd class="autoTxtCount">
+                <div class="button">
+                    <input type="button" class="fl half-btn" value="确定" id="jsComfirmBtn"/>
+                    <span class="fr half-btn jsCloseDialog">取消</span>
+                </div>
+            </dd>
+        </div>
+    </div>
+    <!-- 视频 -->
+    <div class="videobox dialogbox" id="jsVideoDialog">
+        <div class="close jsCloseDialog"><img src="{% static "images/dig_close.png" %}"/></div>
+        <div class="video-player">
+            <video id="course_video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" width="1200" height="600" poster="" data-setup="{}">
+                <source data-id="" src="" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    <!--修改密码-->
+    <div class="resetpwdbox dialogbox" id="jsResetDialog">
+        <h1>修改密码</h1>
+        <div class="close jsCloseDialog"><img src="{% static "images/dig_close.png" %}"/></div>
+        <div class="cont">
+            <form id="jsResetPwdForm" autocomplete="off">
+                <div class="box">
+                    <span class="word2" >新&nbsp;&nbsp;密&nbsp;&nbsp;码</span>
+                    <input type="password" id="pwd" name="password" placeholder="6-20位非中文字符"/>
+                </div>
+                <div class="box">
+                    <span class="word2" >确定密码</span>
+                    <input type="password" id="repwd" name="password2" placeholder="6-20位非中文字符"/>
+                </div>
+                <div class="error btns" id="jsResetPwdTips"></div>
+                <div class="button">
+                    <input id="jsResetPwdBtn" type="button" value="提交" />
+                </div>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+    <!--修改邮箱-->
+    <div class="dialogbox changeemai1 changephone" id="jsChangeEmailDialog">
+        <h1>修改邮箱</h1>
+        <div class="close jsCloseDialog"><img src="{% static "images/dig_close.png" %}"/></div>
+        <p>请输入新的邮箱地址</p>
+        <form id="jsChangeEmailForm" autocomplete="off">
+            <div class="box">
+                <input class="fl change_email" name="email" id="jsChangeEmail" type="text" placeholder="输入新的邮箱地址">
+            </div>
+            <div class="box">
+                <input class="fl email_code" type="text" id="jsChangeEmailCode" name="code" placeholder="输入邮箱验证码">
+                <input class="getcode getting" type="button" id="jsChangeEmailCodeBtn" value="获取验证码">
+            </div>
+            <div class="error btns change_email_tips" id="jsChangeEmailTips" >请输入...</div>
+            <div class="button">
+                <input class="changeemai_btn" id="jsChangeEmailBtn" type="button" value="完成"/>
+            </div>
+            {% csrf_token %}
+        </form>
+    </div>
+</div>
+
+<div class="bg" id="dialogBg"></div>
+
+<script type="text/javascript" src="{% static "js/selectUi.js" %}"></script>
+<script type="text/javascript" src="{% static "js/plugins/layer/layer.js" %}"></script>
+<script type="text/javascript" src="{% static "js/plugins/queryCity/js/public.js" %}"></script>
+<script type="text/javascript" src="{% static "js/unslider.js" %}"></script>
+<script type="text/javascript" src="{% static "js/plugins/jquery.scrollLoading.js" %}"></script>
+<script type="text/javascript" src="{% static "js/validateDialog.js" %}"></script>
+<script type="text/javascript" src="{% static "js/deco-common.js" %}"></script>
+<script type="text/javascript" src="{% static "js/plugins/jquery.upload.js" %}"></script>
+<script type="text/javascript" src="{% static "js/validate.js" %}"></script>
+
+{% block extra_js %}{% endblock %}
+
+<script type="text/javascript">
+    $('.jsDeleteFav_course').on('click', function(){
+        var _this = $(this),
+            favid = _this.attr('data-favid');
+        $.ajax({
+                cache: false,
+                type: "POST",
+                url: "{% url "school:user_fav" %}",
+                data: {
+                    fav_type: 1,
+                    fav_id: favid,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                async: true,
+                success: function(data) {
+                    Dml.fun.winReload();
+                }
+            });
+    });
+
+    $('.jsDeleteFav_teacher').on('click', function(){
+            var _this = $(this),
+                favid = _this.attr('data-favid');
+            $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url "school:user_fav" %}",
+                    data: {
+                        fav_type: 3,
+                        fav_id: favid,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    async: true,
+                    success: function(data) {
+                        Dml.fun.winReload();
+                    }
+                });
+        });
+
+
+</script>
+<!--
+    $('.jsDeleteFav_org').on('click', function(){
+            var _this = $(this),
+                favid = _this.attr('data-favid');
+            $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url "school:user_fav" %}",
+                    data: {
+                        fav_type: 2,
+                        fav_id: favid,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    async: true,
+                    success: function(data) {
+                        Dml.fun.winReload();
+                    }
+                });
+        });
+    -->
+<!--
+<script>
+    var shareUrl = '',
+        shareText = '',
+        shareDesc = '',
+        shareComment = '';
+    $(function () {
+        $(".bdsharebuttonbox a").mouseover(function () {
+            var type = $(this).attr('data-cmd'),
+                $parent = $(this).parent('.bdsharebuttonbox'),
+                fxurl = $parent.attr('data-url'),
+                fxtext = $parent.attr('data-text'),
+                fxdesc = $parent.attr('data-desc'),
+                fxcomment = $parent.attr('data-comment');
+            switch (type){
+                case 'tsina':
+                case 'tqq':
+                case 'renren':
+                        shareUrl = fxurl;
+                        shareText = fxdesc;
+                        shareDesc = '';
+                        shareComment = '';
+                    break;
+                default :
+                        shareUrl = fxurl;
+                        shareText = fxtext;
+                        shareDesc = fxdesc;
+                        shareComment = fxcomment;
+                    break;
+            }
+        });
+    });
+    function SetShareUrl(cmd, config) {
+        if (shareUrl) {
+            config.bdUrl = "" + shareUrl;
+        }
+        if(shareText){
+            config.bdText = shareText;
+        }
+        if(shareDesc){
+            config.bdDesc = shareDesc;
+        }
+        if(shareComment){
+            config.bdComment = shareComment;
+        }
+
+        return config;
+    }
+    window._bd_share_config = {
+        "common": {
+            "onBeforeClick":SetShareUrl,
+            "bdPic":"",
+            "bdMini":"2",
+            "searchPic":"1",
+            "bdMiniList":false
+        },
+        "share": {
+            "bdSize":"16"
+        }
+    };
+    with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com../api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+-->
+
+</body>
+</html>

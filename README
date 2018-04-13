@@ -1,0 +1,13 @@
+工大在线学习平台开发环境说明：
+
+生产环境：Windows/Linux
+
+项目环境：Python 2.7 + pip(python集成，请注意勾选) + Django 1.9
+		  注意：Windows下安装Python安装包时，请勾选所有选项，默认将安装pip管理工具；
+		  		Linux下需单独安装
+		  Django安装命令：pip install django==1.9
+
+项目插件：xadmin(命令：pip install xadmin)
+		  pillow图片库(命令：pip install pillow)
+		  django-simple-captcha(命令：pip install django-simple-captcha==0.4.6)
+		  django-pure-pagination(命令：pip install django-pure-pagination)

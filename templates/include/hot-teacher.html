@@ -1,0 +1,16 @@
+<div class="right layout teacher_list">
+    <div class="head">教师排行榜</div>
+    {% for hot_teacher in hot_teachers %}
+        <dl class="des" style="width:246px;">
+            <dt class="num fl">{{ forloop.counter }}</dt>
+            <dd>
+                <a href="{% url "school:teacher_detail" hot_teacher.id %}">
+                    <img width="50" height="50" class="scrollLoading" src="{{ MEDIA_URL }}{{ hot_teacher.image }}"/>
+                    <h1 title="{{ hot_teacher.name }}">{{ hot_teacher.name }} <span class="small-font">{{ hot_teacher.title }}</span></h1>
+                </a>
+                <p>主讲课程：<span style="color:#555;">{% for course in hot_teacher.get_course %}{{ course.name }}{% endfor %}</span></p>
+                <p>{{ hot_teacher.school }}</p>
+            </dd>
+        </dl>
+    {% endfor %}
+</div>
